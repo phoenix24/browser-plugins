@@ -4,7 +4,7 @@
         <link rel="stylesheet" type="text/css" href="./styles.css"/>
         <script type="text/javascript" src="./main.js"></script>
     </head>
-    <body onload="main();">
+    <body onload="init();">
         <div id="container">
             <div class="toppanel">
                 <div class="panel" id="status_panel">
@@ -35,22 +35,16 @@
             </div>
 			<fieldset>
 				<legend>create a new note</legend>
-				<input type="text" value="new note"/>
+				<input type="text" value="new note" id="notename"/>
+				<input type="submit" value="create note" onclick="createnote();"/>
+				
 			</fieldset>
-			<fieldset>
+			<fieldset id="notescontainer">
 				<legend>select the notes to display</legend>
-
-				<input type="checkbox" name="bizkul" id="bizkul"/> 
-				<label for="bizkul">bikul <label/>
-
-				<input type="checkbox" name="learn" id="learn"/>
-				<label for="learn">learn <label/>
-
-				<input type="checkbox" name="projects" id="projects"/>
-				<label for="projects">projects <label/>
-
-				<input type="checkbox" name="personal" id="personal"/>
-				<label for="personal">personal <label/>
+				<div class="note">
+					<input type="checkbox" name="bizkul" id="bizkul"/> 
+					<label for="bizkul">bikul <label/>
+				</div>
 			</fieldset>
         </div>
     </body>
