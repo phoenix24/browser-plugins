@@ -5,8 +5,8 @@ var animationFrames = 36;
 var animationSpeed = 10; // ms
 var canvas;
 var canvasContext;
-var gmail = "http://mail.google.com/";
-var gmailAtomRef = "http://mail.google.com/mail/feed/atom";
+var gmail = "http://mail.kuliza.com/";
+var gmailAtomRef = "http://mail.kuliza.com/mail/feed/atom";
 var loggedInImage;
 var pollInterval = 1000 * 10;  // 10 seconds
 var requestTimeout = 1000 * 2;  // 2 seconds
@@ -60,7 +60,7 @@ LoadingAnimation.prototype.stop = function() {
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo) {
   if (changeInfo.url && changeInfo.url.indexOf(gmail) == 0) {
-    console.log("saw gmail! updating...");
+    console.log("saw kuiza mail! updating...");
     getInboxCount(function(count) {
       updateUnreadCount(count);
     });

@@ -1,10 +1,10 @@
 {
-  "name": "Google Mail Checker",
-  "description": "This extension adds a Google Mail button to the toolbar which displays the number of unread messages in your inbox. You can also click the button to open your inbox.",
+  "name": "Kuliza Mail Checker",
+  "description": "This extension adds a Kuliza Mail button to the toolbar which displays the number of unread messages in your inbox. You can also click the button to open your inbox. The plugin is based on the Gmail's chrome extension.",
   "version": "1.0",
   "background_page": "background.html",
   "permissions": [
-    "tabs", "http://*.google.com/", "https://*.google.com/"
+    "tabs", "http://*.kuliza.com/", "https://*.kuliza.com/"
    ],
   "browser_action": {
       "default_title": ""
