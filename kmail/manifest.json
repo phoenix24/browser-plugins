@@ -13,5 +13,5 @@
   "icons": {
     "128": "icon_128x128.png"
   },
-  "update_url": "http://google-chromium-extensions.googlecode.com/files/updates.xml",
+  "update_url": "http://google-chromium-extensions.googlecode.com/files/updates.xml"
 }
