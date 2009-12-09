@@ -4,10 +4,10 @@
   "version": "1.0",
   "background_page": "background.html",
   "permissions": [
-    "tabs", "http://*.kuliza.com/", "https://*.kuliza.com/"
+    "tabs", "http://*.google.com/a/kuliza.com", "https://*.google.com/a/kuliza.com"
    ],
   "browser_action": {
-      "default_title": ""
+      "default_title": "Kuliza Mail"
   },
   "icons": {
     "128": "icon_128.png"
