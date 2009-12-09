@@ -73,7 +73,7 @@ function init() {
   loggedInImage = document.getElementById('logged_in');
   canvasContext = canvas.getContext('2d');
 
-  chrome.browserAction.setIcon({path: "kuliza_logged_in.png"});
+  chrome.browserAction.setIcon({path: "icon_19x19.png"});
   loadingAnimation.start();
 
   startRequest();
@@ -195,7 +195,7 @@ function animateFlip() {
 
 function showLoggedOut() {
   unreadCount = -1;
-  chrome.browserAction.setIcon({path:"kuliza_not_logged_in.png"});
+  chrome.browserAction.setIcon({path:"icon_19x19_gray.png"});
   chrome.browserAction.setBadgeBackgroundColor({color:[190, 190, 190, 230]});
   chrome.browserAction.setBadgeText({text:"?"});
 }
@@ -228,7 +228,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 </script>
 </head>
 <body onload="init()">
-<img id="logged_in" src="kuliza_logged_in.png">
+<img id="logged_in" src="icon_19x19.png">
 <canvas id="canvas" width="19" height="19">
 </body>
 </html>
