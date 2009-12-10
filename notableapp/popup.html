@@ -1,0 +1,76 @@
+<html>
+    <head>
+        <script type="text/javascript">
+        	function init() {
+				//initialize the localstorage;
+				if (localStorage["scrshot_count"] === undefined ) {
+					localStorage["scrshot_count"] = 0;
+				}
+
+				var tmp = "";
+				var thumbnail = "";
+				var body = document.body;
+				var count = localStorage["scrshot_count"];
+//				var count = localStorage["scrshot_count"]++;
+				var scrshot = document.getElementsByClassName("screenshot")[0];
+				
+
+				//take the screenshot;
+				chrome.tabs.captureVisibleTab(null, function(img) {
+//					localStorage["scr"+count] = img;
+//					localStorage["details"+count] = document.head.title + "<br>" + document.location.href;
+				});
+				
+				for (i = 1; i < count; i++) {
+					tmp = scrshot.cloneNode(true);
+					tmp.className = "visible";
+					tmp.getElementsByClassName("thumbnail")[0].src = localStorage["scr"+i];
+					tmp.getElementsByClassName("details")[0].innerHTML = "screenshot #"+i;
+					body.appendChild(tmp);
+				}
+			}
+			function cleanup(){
+				delete 	localStorage["scrshot_count"];
+				for (i = 0; i < count; i++) {
+				    delete localStorage["scr"+count];
+					delete localStorage["details"+count];
+
+				}
+			}
+        </script>
+		<style type="text/css">
+			body {
+				width: 255px;
+				overflow-x: hidden;
+			}
+			.details, .thumbnail {
+				float:left;
+				width:75px;
+				height:75px;
+				margin:3px 3px 3px 0;
+			}
+			.details {
+				width:170px;
+			}
+			.clear {
+				clear:both;
+			}
+			.visible {
+				display: block;
+			}
+			.screenshot {
+				display: none;
+			}
+			.visible:hover {
+				background: #e0e0e0;
+			}
+		</style>
+    </head>
+    <body onload="init();">
+    	<div class="screenshot">
+    		<img class="thumbnail" height="75" width="75" src="">
+			<div class="details"></div>
+			<div class="clear"></div>
+    	</div>
+    </body>
+</html>
