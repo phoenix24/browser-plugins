@@ -1,6 +1,10 @@
 <html>
     <head>
         <script type="text/javascript">
+
+			var removeNote = function (){
+				console.log("been hit!");
+			}
         	function init() {
 				//initialize the localstorage;
 				if (localStorage["scrshot_count"] === undefined ) {
@@ -14,43 +18,55 @@
 //				var count = localStorage["scrshot_count"]++;
 				var scrshot = document.getElementsByClassName("screenshot")[0];
 				
-
 				//take the screenshot;
-				chrome.tabs.captureVisibleTab(null, function(img) {
+//				chrome.tabs.captureVisibleTab(null, function(img) {
 //					localStorage["scr"+count] = img;
 //					localStorage["details"+count] = document.head.title + "<br>" + document.location.href;
-				});
+//				});
 				
 				for (i = 1; i < count; i++) {
+					if (localStorage["scr"+i] === undefined ) {
+						continue;
+					}
 					tmp = scrshot.cloneNode(true);
 					tmp.className = "visible";
 					tmp.getElementsByClassName("thumbnail")[0].src = localStorage["scr"+i];
 					tmp.getElementsByClassName("details")[0].innerHTML = "screenshot #"+i;
+					tmp.getElementsByClassName("removebtn")[0].addEventListener("click", removeNote, false);
 					body.appendChild(tmp);
 				}
+			    chrome.browserAction.setBadgeText({
+			      text: count != "0" ? count : ""
+			    });
+				drawIconAtRotation();
+			    chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});				
 			}
-			function cleanup(){
+			var cleanDB = function (){
 				delete 	localStorage["scrshot_count"];
 				for (i = 0; i < count; i++) {
 				    delete localStorage["scr"+count];
 					delete localStorage["details"+count];
-
 				}
 			}
         </script>
 		<style type="text/css">
 			body {
-				width: 255px;
+				width: 400px;
 				overflow-x: hidden;
+				background: #e0e0e0;
+				opacity: 1;
 			}
-			.details, .thumbnail {
+			.btns .addbtn, .btns .removebtn {
+				display: block;
+			}
+			.details, .thumbnail, .btns{
 				float:left;
 				width:75px;
 				height:75px;
-				margin:3px 3px 3px 0;
+				margin:3px;
 			}
 			.details {
-				width:170px;
+				width:195px;
 			}
 			.clear {
 				clear:both;
@@ -62,14 +78,50 @@
 				display: none;
 			}
 			.visible:hover {
-				background: #e0e0e0;
+				background: #000000;
+				opacity: 1;
+			}
+			@-webkit-keyframes wobble {
+				from {
+					-webkit-transform: rotateZ(3deg);
+					opacity: 0.75;
+				}
+				50% {
+					-webkit-transform: rotateZ(-3deg);
+					opacity: 1.0;
+				}
+				to {
+					-webkit-transform: rotateZ(3deg);
+					opacity: 0.75;
+				}
+			}
+			.visible:hover img {
+				-webkit-animation-name: wobble; 
+				-webkit-animation-duration: 0.5s;
+				-webkit-animation-iteration-count: 10; 
+			}
+			.visible:hover imga {
+			    -webkit-transition: all 1s ease-in-out;
+				-webkit-border-radius: 3px;
+				-webkit-box-reflect: below 5px -webkit-gradient(linear, left top, left bottom, from(transparent), color-stop(0.5, transparent), to(white));
+				-webkit-transform: rotateZ(10deg) scale(1.1);
 			}
 		</style>
     </head>
     <body onload="init();">
+		<div class="head">
+			<span class="scrshotscount lt"></span>
+			<span class="popuptitle lt">Captures Awaiting Notes...</span>
+			<span class="close rt"><span>
+			<span class="cleanall rt">cleanall</span>
+		</div>
     	<div class="screenshot">
     		<img class="thumbnail" height="75" width="75" src="">
 			<div class="details"></div>
+			<div class="btns">
+				<input class="addbtn" type="button" value="add notes"/>
+				<input class="removebtn" type="button" value="remove"/>
+			</div>
 			<div class="clear"></div>
     	</div>
     </body>

@@ -1,6 +1,14 @@
 <html>
     <head>
-        <script type="text/javascript" src="screenshot.js"></script>
+        <script type="text/javascript">
+				var count = localStorage["scrshot_count"];
+			    chrome.browserAction.setBadgeText({
+			      text: count != "0" ? count : ""
+			    });
+				drawIconAtRotation();
+			    chrome.browserAction.setBadgeBackgroundColor({color:[208, 0, 24, 255]});				
+        	
+        </script>
     </head>
     <body>
     </body>
