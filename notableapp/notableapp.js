@@ -113,17 +113,17 @@ function captureNew () {
 		cap = new Capture();
 	
 	chrome.tabs.getSelected(null, function(tab) {
-		localStorage["url"] = tab.url;
-		localStorage["title"] = tab.title;
+		cap.url = tab.url;
+		cap.title = tab.title;
 	});
 	chrome.tabs.captureVisibleTab(null, function(img) {
-		localStorage["image"] = img;
+		cap.image = img;
 	});
 	
-	cap.id    = localStorage["id"]++;
-	cap.url   = localStorage["url"];
-	cap.image = localStorage["image"];
-	cap.title = localStorage["title"];
+	cap.id    = 0;//localStorage["id"]++;
+//	cap.url   = localStorage["url"];
+//	cap.image = localStorage["image"];
+//	cap.title = localStorage["title"];
 
 //	cap.save();
 	cap.log();
