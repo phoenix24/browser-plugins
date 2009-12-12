@@ -28,14 +28,15 @@ function Capture() {
 
     	var viewTabUrl = chrome.extension.getURL('capture.html');
         chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-            var views = chrome.extension.getViews();
-            for (i = 0; i < views.length; i++) {
-            	var vi = views[i];
-    			if (vi.location.href == viewTabUrl) {
-    			    vi.setScreenshotUrl(self.image);
-    			    break;
-    			}
-            }
+			var views = chrome.extension.getViews();
+			for (var i = 0; i < views.length; i++) {
+			  var view = views[i];
+			  if (view.location.href == viewTabUrl && !view.imageAlreadySet) {
+			    view.setScreenshotUrl(self.image);
+			    view.imageAlreadySet = true;
+			    break;
+			  }
+			}
         });
     };
     this.log = function() {
