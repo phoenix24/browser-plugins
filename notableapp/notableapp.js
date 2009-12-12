@@ -13,6 +13,8 @@ var notableapp = (function(){
 	var image;
 	
 	function captureView () {
+		//enforcing delay. SQLite is slow.
+		window.setTimeout(function(){}, 300);
 	    var viewTabUrl = chrome.extension.getURL('capture.html');
 	    chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
 	        var views = chrome.extension.getViews();
@@ -24,6 +26,14 @@ var notableapp = (function(){
 				}
 	        }
 	    });
+	}
+	function updateBadgeText (count) {
+		chrome.browserAction.setBadgeText({
+			text: count
+		});
+	}
+	function captureRemove () {
+		console.log("captureRemove");
 	}
 
 //	function captureTab () {
@@ -77,6 +87,7 @@ var notableapp = (function(){
 			chrome.tabs.captureVisibleTab(null, function(img){
 				localStorage["image"] = img;
 			});
+			//enforcing a delay. SQLite seems to be sloooow!
 			window.setTimeout(this.capturesDisplay, 300);
 //			this.captureSave();
 		},
@@ -94,20 +105,13 @@ var notableapp = (function(){
 //			tmp.setAttribute("details", "details" + capture.id);
 			tmp.getElementsByClassName("thumbnail")[0].src = localStorage["image"];
 //			tmp.getElementsByClassName("details")[0].innerHTML = capture.url;
-//			tmp.getElementsByClassName("removebtn")[0].addEventListener("click", captureView, false);
+			tmp.getElementsByClassName("removebtn")[0].addEventListener("click", captureRemove, false);
 			tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", captureView, false);
 			document.body.appendChild(tmp);
+			updateBadgeText(0);
 		},
 		captureSave : function () {
 			console.log("saving the capture");
-		},
-		updateBadgeText: function () {
-			chrome.browserAction.setBadgeText({
-				text: "1"
-			});
-//			chrome.browserAction.setBadgeBackgroundColor({
-//				color: [208, 0, 24, 255]
-//			});
 		},
 		postCaptureTab : function () {
 			
