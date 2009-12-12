@@ -7,12 +7,18 @@
             body {
                 width: 400px;
                 overflow-x: hidden;
-                background: #e0e0e0;
                 opacity: 1;
             }
             .btns .addbtn, .btns .removebtn {
+				margin: 3px;
+				border: none;
                 display: block;
+                -webkit-border-radius: 10px;
             }
+			.thumbnail {
+				cursor: pointer;
+                -webkit-border-radius: 3px;
+			}
             .details, .thumbnail, .btns {
                 float: left;
                 width: 75px;
@@ -72,6 +78,7 @@
         <div class="screenshot">
             <img class="thumbnail" height="75" width="75" src="">
             <div class="details">
+            	<a class="title" href="#"></a>
             </div>
             <div class="btns">
                 <input class="addbtn" type="button" value="add notes"/>

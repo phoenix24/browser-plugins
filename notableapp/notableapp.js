@@ -4,8 +4,6 @@
 var db;
 var highestId = 0;
 
-var image, url, title;
-
 try {
 	db = openDatabase("NotableApp", "1.0", "NotableApp Captures Table", 20000);
 //	db.transaction (function(tx) {
@@ -45,69 +43,60 @@ function Capture() {
  
     var addnotes = document.createElement('input');
     addnotes.className ='addbtn';
-    addnotes.type = 'button';
+    addnotes.type  = 'button';
     addnotes.value = 'add notes';
     buttons.appendChild(addnotes);
  	
     var removenotes = document.createElement('input');
     removenotes.className ='removebtn';
-    addnotes.type = 'button';
+    addnotes.type  = 'button';
     addnotes.value = 'remove';
     buttons.appendChild(removenotes);
     return this;
 }
 
 Capture.prototype = {
-    get id()
-    {
+    get id() {
 		if (!("_id" in this))
 			this._id = 0;
         return this._id;
     },
  
-    set id(x)
-    {
+    set id(x) {
         this._id = x;
     },
  
-    get title()
-    {
+    get title() {
         if (!("_title" in this))
             this._title = 0;
         return this._title;
     },
  
-    set title(x)
-    {
+    set title(x) {
         this._title = x;
     },
  	
-    get url()
-    {
+    get url() {
         if (!("_url" in this))
             this._url = 0;
         return this._url;
     },
  
-    set url(x)
-    {
+    set url(x) {
         this._url = x;
     },
  
-    get image()
-    {
+    get image() {
         if (!("_image" in this))
             this._image = 0;
         return this._image;
     },
  
-    set image(x)
-    {
+    set image(x) {
         this._image = x;
     },
  	
-    save: function()
-    {
+    save: function() {
 		
     },
     
@@ -116,27 +105,27 @@ Capture.prototype = {
     },
     
     display : function() {
-    	console.log("displaying all the captures.");
     	var tmp, 
     		scrshot = document.getElementsByClassName("screenshot")[0];
     	
     	tmp = scrshot.cloneNode(true);
     	tmp.className = "visible";
     	tmp.setAttribute("screenshot", "scr" + this.id);
-    	tmp.getElementsByClassName("details")[0].innerHTML = this.title;
-    	tmp.getElementsByClassName("thumbnail")[0].src = this.image; //localStorage["image"];
-    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", this.view, false);
-    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", this.remove, false);
+    	tmp.getElementsByClassName("title")[0].href      = this.url;
+    	tmp.getElementsByClassName("title")[0].innerHTML = this.title;
+    	tmp.getElementsByClassName("thumbnail")[0].src 	 = this.image;
+    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {this.view(); }, false);
+    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {this.remove(); }, false);
     	document.body.appendChild(tmp);
 //    	updateBadgeText("0");
     },
 
-    onCaptureClick: function(e) {
-		
-    },
-    
     log : function() {
     	console.log("object log: " + this.id +", "+ this.title +", "+ this.url +", "+this.image);
+    },
+    
+    onCaptureClick: function(e) {
+    	
     },
     
     view : function() {
@@ -177,28 +166,24 @@ function captureNew () {
 	var image, title, url, 
 		cap = new Capture();
 	
-	cap.id  = ++highestId;
 	chrome.tabs.getSelected(null, function(tab) {
-		url = tab.url;
- 		title = tab.title;
-//		console.log("tab data: " + tab.title +", "+ tab.url +", ");
+		localStorage["url"] = tab.url;
+		localStorage["title"] = tab.title;
 	});
 	chrome.tabs.captureVisibleTab(null, function(img) {
-		image = img;
 		localStorage["image"] = img;
-//		console.log("new capture image assigning" + image);
 	});
-	console.log("new capture image assigning : " + image);
 	
-	cap.url = url;
-	cap.image = image;
-	cap.title = title;
-	// cap.save();
-	cap.log();
-	console.log("console LOG: " + cap.id +", "+ cap.title +", "+ cap.url +", "+cap.image);
+	cap.id    = localStorage["id"]++;
+	cap.url   = localStorage["url"];
+	cap.image = localStorage["image"];
+	cap.title = localStorage["title"];
 
-	// enforcing a delay. SQLite seems to be sloooow!
-	window.setTimeout(cap.display, 300);
+//	cap.save();
+	cap.log();
+	
+//  enforcing a delay. SQLite seems to be sloooow!
+	window.setTimeout(function(){ cap.display(); }, 300);
 }
 
 function updateBadgeText (count) {
