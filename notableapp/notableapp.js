@@ -11,6 +11,20 @@ var notableapp = (function(){
 	var position  = -1;
 	var badgeText = "notableapp";
 	var image;
+	
+	function captureView () {
+	    var viewTabUrl = chrome.extension.getURL('capture.html');
+	    chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
+	        var views = chrome.extension.getViews();
+	        for (i = 0; i < views.length; i++) {
+	        	var view = views[i];
+				if (view.location.href == viewTabUrl) {
+				    view.setScreenshotUrl(localStorage["image"]);
+				    break;
+				}
+	        }
+	    });
+	}
 
 //	function captureTab () {
 //		
@@ -41,7 +55,7 @@ var notableapp = (function(){
 					console.log("failed to open the db.");
 				}
 				db.transaction (function(tx) {
-					tx.executeSql ("SELECT COUNT(*) FROM NotableApp", [], function(r){}, function(tx, error) {
+					tx.executeSql ("SELECT COUNT(*) FROM NotableApp", [], function(){}, function(tx, error) {
 						tx.executeSql("CREATE TABLE Captures (id REAL UNIQUE, title TEXT, url TEXT, timestamp REAL, image BLOB)", [], function(r){});
 					});
 				});
@@ -80,7 +94,8 @@ var notableapp = (function(){
 //			tmp.setAttribute("details", "details" + capture.id);
 			tmp.getElementsByClassName("thumbnail")[0].src = localStorage["image"];
 //			tmp.getElementsByClassName("details")[0].innerHTML = capture.url;
-//			tmp.getElementsByClassName("removebtn")[0].addEventListener("click", removeNote, false);
+//			tmp.getElementsByClassName("removebtn")[0].addEventListener("click", captureView, false);
+			tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", captureView, false);
 			document.body.appendChild(tmp);
 		},
 		captureSave : function () {
@@ -99,6 +114,9 @@ var notableapp = (function(){
 		},
 		openTab : function () {
 			
+		},
+		captureView : function () {
+			console.log("capture view has been clicked.");
 		}
 	};
 })();
