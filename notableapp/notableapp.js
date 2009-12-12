@@ -2,10 +2,9 @@
  * @author chaitanya
  */
 var db;
-var image;
-var position  = -1;
 var highestId = 0;
-var badgeText = "notableapp";
+
+var image, url, title;
 
 try {
 	db = openDatabase("NotableApp", "1.0", "NotableApp Captures Table", 20000);
@@ -22,25 +21,6 @@ try {
 } catch (err) {
 	console.log("failed to open the db.");
 }
-
-function Note1() {
-    var self = this;
-    var note = document.createElement('div');
-    this.note = note;
-    return this;
-}
-Note1.prototype = {
-    get id(){
-        if (!("_id" in this)) 
-            this._id = 0;
-        return this._id;
-    },
-    
-     set id(x){
-        this._id = x;
-    },
-}
-
 
 function Capture() {
     var self = this;
@@ -74,18 +54,14 @@ function Capture() {
     addnotes.type = 'button';
     addnotes.value = 'remove';
     buttons.appendChild(removenotes);
-    
-    this.url = "no url";
-    this.title = "no title";
-    this.image = "no image";
     return this;
 }
 
 Capture.prototype = {
     get id()
     {
-        if (!("_id" in this))
-            this._id = 0;
+		if (!("_id" in this))
+			this._id = 0;
         return this._id;
     },
  
@@ -96,59 +72,133 @@ Capture.prototype = {
  
     get title()
     {
-        return this.title;
+        if (!("_title" in this))
+            this._title = 0;
+        return this._title;
     },
  
     set title(x)
     {
-        this.title = x;
+        this._title = x;
     },
  	
     get url()
     {
-        return this.url;
+        if (!("_url" in this))
+            this._url = 0;
+        return this._url;
     },
  
     set url(x)
     {
-        this.url = x;
+        this._url = x;
     },
  
     get image()
     {
-        return this.image;
+        if (!("_image" in this))
+            this._image = 0;
+        return this._image;
     },
  
     set image(x)
     {
-        this.image = x;
+        this._image = x;
     },
  	
     save: function()
     {
 		
     },
- 
-    onCaptureClick: function(e)
-    {
+    
+    remove : function() {
+    	console.log("remove has been clicked ");
+    },
+    
+    display : function() {
+    	console.log("displaying all the captures.");
+    	var tmp, 
+    		scrshot = document.getElementsByClassName("screenshot")[0];
+    	
+    	tmp = scrshot.cloneNode(true);
+    	tmp.className = "visible";
+    	tmp.setAttribute("screenshot", "scr" + this.id);
+    	tmp.getElementsByClassName("details")[0].innerHTML = this.title;
+    	tmp.getElementsByClassName("thumbnail")[0].src = this.image; //localStorage["image"];
+    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", this.view, false);
+    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", this.remove, false);
+    	document.body.appendChild(tmp);
+//    	updateBadgeText("0");
+    },
+
+    onCaptureClick: function(e) {
 		
+    },
+    
+    log : function() {
+    	console.log("object log: " + this.id +", "+ this.title +", "+ this.url +", "+this.image);
+    },
+    
+    view : function() {
+    	// enforcing delay. SQLite is slow.
+    	window.setTimeout(function(){}, 300);
+
+    	var viewTabUrl = chrome.extension.getURL('capture.html');
+        chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
+            var views = chrome.extension.getViews();
+            for (i = 0; i < views.length; i++) {
+            	var view = views[i];
+    			if (view.location.href == viewTabUrl) {
+    			    view.setScreenshotUrl(localStorage["image"]);
+    			    break;
+    			}
+            }
+        });
     }
 };
 
-function captureView () {
-	// enforcing delay. SQLite is slow.
-	window.setTimeout(function(){}, 300);
-    var viewTabUrl = chrome.extension.getURL('capture.html');
-    chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-        var views = chrome.extension.getViews();
-        for (i = 0; i < views.length; i++) {
-        	var view = views[i];
-			if (view.location.href == viewTabUrl) {
-			    view.setScreenshotUrl(localStorage["image"]);
-			    break;
-			}
-        }
-    });
+//function captureView () {
+//	// enforcing delay. SQLite is slow.
+//	window.setTimeout(function(){}, 300);
+//    var viewTabUrl = chrome.extension.getURL('capture.html');
+//    chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
+//        var views = chrome.extension.getViews();
+//        for (i = 0; i < views.length; i++) {
+//        	var view = views[i];
+//			if (view.location.href == viewTabUrl) {
+//			    view.setScreenshotUrl(localStorage["image"]);
+//			    break;
+//			}
+//        }
+//    });
+//}
+
+function captureNew () {
+	var image, title, url, 
+		cap = new Capture();
+	
+	cap.id  = ++highestId;
+	chrome.tabs.getSelected(null, function(tab) {
+		url = tab.url;
+ 		title = tab.title;
+//		console.log("tab data: " + tab.title +", "+ tab.url +", ");
+	});
+	chrome.tabs.captureVisibleTab(null, function(img) {
+		image = img;
+		localStorage["image"] = img;
+//		console.log("new capture image assigning" + image);
+	});
+	console.log("new capture image assigning : " + image);
+	
+	cap.url = url;
+	cap.image = image;
+	cap.title = title;
+	// cap.save();
+	cap.log();
+	console.log("console LOG: " + cap.id +", "+ cap.title +", "+ cap.url +", "+cap.image);
+
+	// enforcing a delay. SQLite seems to be sloooow!
+	window.setTimeout(cap.display, 300);
 }
 
 function updateBadgeText (count) {
@@ -159,56 +209,4 @@ function updateBadgeText (count) {
 
 function init() {
 	console.log("app's initialized!");
-}
-
-function captureNew () {
-	console.log("new capture ");
-	var cap = new Capture();
-	console.log("new capture.. ");
-	// cap.id = ++highestId;
-	// cap.timestamp = new Date().getTime();
-	// console.log("new capture ");
-	chrome.tabs.getSelected(null, function(tab) {
-	// cap.url = tab.url;
-	// cap.title = tab.title;
-		console.log(tab.title +", "+ tab.url +", ");
-	});
-	console.log("new capture ");
-	chrome.tabs.captureVisibleTab(null, function(img) {
-	// cap.image = img;
-		localStorage["image"] = img;
-	});
-	console.log("new capture ");
-	
-	// the tab has been captured, lets save it.
-	console.log("about to save the captures...");
-	// cap.save();
-	// cap.log();
-	// console.log(cap.id +", "+ cap.title +", "+ cap.url +", "+
-	// cap.timestamp +", ");
-
-	// enforcing a delay. SQLite seems to be sloooow!
-	window.setTimeout(this.capturesDisplay, 300);
-}
-
-function capturesLoad() {
-	console.log("loading all the capture notes.");
-	return captures;
-}
-
-function capturesDisplay() {
-	var tmp;
-	var scrshot = document.getElementsByClassName("screenshot")[0];
-	console.log("displaying all the captures.");
-	
-	tmp = scrshot.cloneNode(true);
-	tmp.className = "visible";
-	// tmp.setAttribute("screenshot", "scr" + capture.id);
-	// tmp.setAttribute("details", "details" + capture.id);
-	tmp.getElementsByClassName("thumbnail")[0].src = localStorage["image"];
-	// tmp.getElementsByClassName("details")[0].innerHTML = capture.url;
-	// tmp.getElementsByClassName("removebtn")[0].addEventListener("click", captureRemove, false);
-	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", captureView, false);
-	document.body.appendChild(tmp);
-	updateBadgeText("0");
 }
