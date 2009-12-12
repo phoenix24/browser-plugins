@@ -2,20 +2,21 @@
  * @author chaitanya
  */
 var db;
-var highestId = 0;
-
 try {
-	db = openDatabase("NotableApp", "1.0", "NotableApp Captures Table", 20000);
-//	db.transaction (function(tx) {
-//		tx.executeSql ("SELECT COUNT(*) FROM NotableApp", [], function(result) {
-//			highestId = result.lenght === undefined ? 0 : result.lenght;
-//			console.log(highestId + " records found. ");
-//		}, function(tx, error) {
-//			tx.executeSql("CREATE TABLE NotableApp (id REAL UNIQUE, title TEXT, url TEXT, timestamp REAL, image BLOB)", [], function(r){
-//				
-//			});
-//		});
-//	});
+	db = openDatabase("NotableAppDB", "1.0", "NotableApp Captures Table", 20000);
+
+	db.transaction (function(tx) {
+		tx.executeSql ("SELECT id FROM NotableApp", [], 
+			function(tx, result) { 
+				console.log("count is " + result.rows.length);
+				return result.rows.length; 
+			},
+			function(tx, error) {
+				tx.executeSql("CREATE TABLE NotableApp (id REAL UNIQUE, title TEXT, url TEXT, image BLOB)", [], function(r) {
+					console.log("table successfully created. ");
+			});
+		});
+	});
 } catch (err) {
 	console.log("failed to open the db.");
 }
@@ -30,40 +31,65 @@ function Capture() {
         chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
 			var views = chrome.extension.getViews();
 			for (var i = 0; i < views.length; i++) {
-			  var view = views[i];
-			  if (view.location.href == viewTabUrl && !view.imageAlreadySet) {
-			    view.setScreenshotUrl(self.image);
-			    view.imageAlreadySet = true;
-			    break;
-			  }
+			   var view = views[i];
+			   if (view.location.href == viewTabUrl && !view.imageAlreadySet) {
+			      view.setScreenshotUrl(self.image);
+			      view.imageAlreadySet = true;
+			      break;
+			   }
 			}
         });
     };
     this.log = function() {
-    	console.log("object log: " + this +", "+ this.title +", "+ this.url +", "+this.image);
+    	console.log("object log: " + this +", "+ self.title +", "+ self.url +", " + this.image);
     };
     this.save = function() {
-    	
-    }
+        var cap = this;
+        console.log("object save: " + cap.id +", "+ cap.title +", "+ cap.url +", " + cap.image);
+        db.transaction(function(tx){
+            tx.executeSql("INSERT INTO NotableApp (id, title, url, image) VALUES (?, ?, ?, ?)", [cap.id, cap.title, cap.url, cap.image]);
+        });
+    };
     this.remove = function() {
     	console.log("remove has been clicked ");
     };
     this.display = function () {
-    	var tmp, 
-    		scrshot = document.getElementsByClassName("screenshot")[0];
-    	
-    	tmp = scrshot.cloneNode(true);
-    	tmp.className = "visible";
-    	tmp.setAttribute("screenshot", "scr" + self.id);
-    	tmp.getElementsByClassName("title")[0].href      = self.url;
-    	tmp.getElementsByClassName("title")[0].innerHTML = self.title;
-    	tmp.getElementsByClassName("thumbnail")[0].src 	 = self.image;
-    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {self.view(); }, false);
-    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {self.remove(); }, false);
-    	document.body.appendChild(tmp);
-//    	updateBadgeText("0");
+
+    	var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
+        db.transaction(function(tx){
+            tx.executeSql("SELECT id, title, url, image FROM NotableApp", [], function(tx, result){
+                for (var i = 0; i < result.rows.length; ++i) {
+                    var row = result.rows.item(i);
+                    var cap = new Capture();
+                    cap.id  = row['id'];
+                    cap.url = row['url'];
+                    cap.title = row['title'];
+                    cap.image = row['image'];
+                    console.log("object saved: " + cap.id +", "+ cap.title +", "+ cap.url +", " + cap.image);
+                    
+//                    if (row['id'] > highestId) 
+//                        highestId = row['id'];
+//                    if (row['zindex'] > highestZ) 
+//                        highestZ = row['zindex'];
+
+                	tmp = scrshot.cloneNode(true);
+                	tmp.className = "visible";
+                	tmp.setAttribute("screenshot", "scr" + cap.id);
+                	tmp.getElementsByClassName("title")[0].href      = cap.url;
+                	tmp.getElementsByClassName("title")[0].innerHTML = cap.title;
+                	tmp.getElementsByClassName("thumbnail")[0].src 	 = cap.image;
+                	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {cap.view(); }, false);
+                	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {cap.remove(); }, false);
+                	document.body.appendChild(tmp);
+//                	updateBadgeText("0");
+                    
+                }
+            }, function(tx, error){
+                alert('Failed to retrieve notes from database - ' + error.message);
+                return;
+            });
+        });
     };
-    
     return this;
 }
 
@@ -110,9 +136,7 @@ Capture.prototype = {
 };
 
 function captureNew () {
-	var image, title, url, 
-		cap = new Capture();
-	
+	var cap = new Capture();
 	chrome.tabs.getSelected(null, function(tab) {
 		cap.url = tab.url;
 		cap.title = tab.title;
@@ -120,17 +144,15 @@ function captureNew () {
 	chrome.tabs.captureVisibleTab(null, function(img) {
 		cap.image = img;
 	});
-	
-	cap.id    = 0;//localStorage["id"]++;
-//	cap.url   = localStorage["url"];
-//	cap.image = localStorage["image"];
-//	cap.title = localStorage["title"];
-
-//	cap.save();
-	cap.log();
+	cap.id    = 2;
+	console.log("id of the capture is : " + cap.id);
 	
 //  enforcing a delay. SQLite seems to be sloooow!
-	window.setTimeout(cap.display, 300);
+	window.setTimeout(function(){
+		cap.display();
+		cap.save();
+//		cap.log();
+	}, 300);
 }
 
 function updateBadgeText (count) {
