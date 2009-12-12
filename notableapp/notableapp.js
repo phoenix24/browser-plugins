@@ -22,36 +22,47 @@ try {
 
 function Capture() {
     var self = this;
-    
-    var capture = document.createElement('div');
-    capture.className = 'visible';
-    this.capture = capture;
- 
-    var thumbnail = document.createElement('img');
-    close.height = '75';
-    close.width = '75';
-// close.addEventListener('click', function(event) { return self.close(event) }, false);
-    capture.appendChild(thumbnail);
+    this.view = function () {
+    	// enforcing delay. SQLite is slow.
+    	window.setTimeout(function(){}, 300);
 
-    var details = document.createElement('div');
-    details.className ='details';
-    capture.appendChild(details);
- 
-    var buttons = document.createElement('div');
-    buttons.className ='btns';
-    capture.appendChild(buttons);
- 
-    var addnotes = document.createElement('input');
-    addnotes.className ='addbtn';
-    addnotes.type  = 'button';
-    addnotes.value = 'add notes';
-    buttons.appendChild(addnotes);
- 	
-    var removenotes = document.createElement('input');
-    removenotes.className ='removebtn';
-    addnotes.type  = 'button';
-    addnotes.value = 'remove';
-    buttons.appendChild(removenotes);
+    	var viewTabUrl = chrome.extension.getURL('capture.html');
+        chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
+            var views = chrome.extension.getViews();
+            for (i = 0; i < views.length; i++) {
+            	var vi = views[i];
+    			if (vi.location.href == viewTabUrl) {
+    			    vi.setScreenshotUrl(this.image);
+    			    break;
+    			}
+            }
+        });
+    };
+    this.log = function() {
+    	console.log("object log: " + this +", "+ this.title +", "+ this.url +", "+this.image);
+    };
+    this.save = function() {
+    	
+    }
+    this.remove = function() {
+    	console.log("remove has been clicked ");
+    };
+    this.display = function () {
+    	var tmp, 
+    		scrshot = document.getElementsByClassName("screenshot")[0];
+    	
+    	tmp = scrshot.cloneNode(true);
+    	tmp.className = "visible";
+    	tmp.setAttribute("screenshot", "scr" + this.id);
+    	tmp.getElementsByClassName("title")[0].href      = this.url;
+    	tmp.getElementsByClassName("title")[0].innerHTML = this.title;
+    	tmp.getElementsByClassName("thumbnail")[0].src 	 = this.image;
+    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {self.view(); }, false);
+    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {self.remove(); }, false);
+    	document.body.appendChild(tmp);
+//    	updateBadgeText("0");
+    };
+    
     return this;
 }
 
@@ -94,73 +105,8 @@ Capture.prototype = {
  
     set image(x) {
         this._image = x;
-    },
- 	
-    save: function() {
-		
-    },
-    
-    remove : function() {
-    	console.log("remove has been clicked ");
-    },
-    
-    display : function() {
-    	var tmp, 
-    		scrshot = document.getElementsByClassName("screenshot")[0];
-    	
-    	tmp = scrshot.cloneNode(true);
-    	tmp.className = "visible";
-    	tmp.setAttribute("screenshot", "scr" + this.id);
-    	tmp.getElementsByClassName("title")[0].href      = this.url;
-    	tmp.getElementsByClassName("title")[0].innerHTML = this.title;
-    	tmp.getElementsByClassName("thumbnail")[0].src 	 = this.image;
-    	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {this.view(); }, false);
-    	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {this.remove(); }, false);
-    	document.body.appendChild(tmp);
-//    	updateBadgeText("0");
-    },
-
-    log : function() {
-    	console.log("object log: " + this.id +", "+ this.title +", "+ this.url +", "+this.image);
-    },
-    
-    onCaptureClick: function(e) {
-    	
-    },
-    
-    view : function() {
-    	// enforcing delay. SQLite is slow.
-    	window.setTimeout(function(){}, 300);
-
-    	var viewTabUrl = chrome.extension.getURL('capture.html');
-        chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-            var views = chrome.extension.getViews();
-            for (i = 0; i < views.length; i++) {
-            	var view = views[i];
-    			if (view.location.href == viewTabUrl) {
-    			    view.setScreenshotUrl(localStorage["image"]);
-    			    break;
-    			}
-            }
-        });
     }
 };
-
-//function captureView () {
-//	// enforcing delay. SQLite is slow.
-//	window.setTimeout(function(){}, 300);
-//    var viewTabUrl = chrome.extension.getURL('capture.html');
-//    chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-//        var views = chrome.extension.getViews();
-//        for (i = 0; i < views.length; i++) {
-//        	var view = views[i];
-//			if (view.location.href == viewTabUrl) {
-//			    view.setScreenshotUrl(localStorage["image"]);
-//			    break;
-//			}
-//        }
-//    });
-//}
 
 function captureNew () {
 	var image, title, url, 
