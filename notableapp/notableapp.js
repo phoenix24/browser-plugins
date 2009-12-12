@@ -32,7 +32,7 @@ function Capture() {
             for (i = 0; i < views.length; i++) {
             	var vi = views[i];
     			if (vi.location.href == viewTabUrl) {
-    			    vi.setScreenshotUrl(this.image);
+    			    vi.setScreenshotUrl(self.image);
     			    break;
     			}
             }
@@ -53,10 +53,10 @@ function Capture() {
     	
     	tmp = scrshot.cloneNode(true);
     	tmp.className = "visible";
-    	tmp.setAttribute("screenshot", "scr" + this.id);
-    	tmp.getElementsByClassName("title")[0].href      = this.url;
-    	tmp.getElementsByClassName("title")[0].innerHTML = this.title;
-    	tmp.getElementsByClassName("thumbnail")[0].src 	 = this.image;
+    	tmp.setAttribute("screenshot", "scr" + self.id);
+    	tmp.getElementsByClassName("title")[0].href      = self.url;
+    	tmp.getElementsByClassName("title")[0].innerHTML = self.title;
+    	tmp.getElementsByClassName("thumbnail")[0].src 	 = self.image;
     	tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {self.view(); }, false);
     	tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {self.remove(); }, false);
     	document.body.appendChild(tmp);
@@ -129,7 +129,7 @@ function captureNew () {
 	cap.log();
 	
 //  enforcing a delay. SQLite seems to be sloooow!
-	window.setTimeout(function(){ cap.display(); }, 300);
+	window.setTimeout(cap.display, 300);
 }
 
 function updateBadgeText (count) {
