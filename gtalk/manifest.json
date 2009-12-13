@@ -1,17 +1,13 @@
 {
-  "name": "Kuliza Mail Checker",
-  "description": "This extension adds a Kuliza Mail button to the toolbar which displays the number of unread messages in your inbox. You can also click the button to open your inbox. The plugin is based on the Gmail's chrome extension.",
-  "version": "1.1",
-  "background_page": "background.html",
-  "permissions": [
-    "tabs", "http://*.google.com/a/kuliza.com", "https://*.google.com/a/kuliza.com"
-   ],
+  "name": "Gtalk Extension!",
+  "description": "This is a GTalk extension!",
+  "version": "1.0",
   "browser_action": {
-      "default_title": "Kuliza Mail",
-      "default_icon" : "icon_19x19.png"
+      "default_title": "GTalk",
+      "default_icon" : "chat_icon.gif",
+      "popup": "background.html"
   },
   "icons": {
     "128": "icon_128x128.png"
-  },
-  "update_url": "http://google-chromium-extensions.googlecode.com/files/kmail_updates.xml"
+  }
 }
