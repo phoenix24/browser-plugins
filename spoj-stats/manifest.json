@@ -1,0 +1,15 @@
+{
+  "name": "Spoj Plugin",
+  "description": "This is the SPOJ Plugin.",
+  "version": "1.0",
+  "background_page": "background.html",
+  "permissions": [
+    "tabs", "http://*.spoj.pl/", "https://*.spoj.pl/*"
+   ],
+  "browser_action": {
+      "default_title": "SPOJ Plugin"
+  },
+  "icons": {
+    "128": "icon_128.png"
+  }
+}
