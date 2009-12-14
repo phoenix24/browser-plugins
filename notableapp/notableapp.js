@@ -76,7 +76,8 @@ function Capture() {
                     tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {cap.view(); }, false);
                     tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {cap.remove(); }, false);
                     document.body.appendChild(tmp);
-//                    updateBadgeText("0");
+                    console.log("trying to update the badge.");
+                    notableapp.updateBadgeText("0");
                 }
             }, function(tx, error){
                 alert('Failed to retrieve notes from database - ' + error.message);
@@ -149,12 +150,21 @@ function captureNew () {
     }, 300);
 }
 
-function updateBadgeText (count) {
-    chrome.browserAction.setBadgeText({
-        text: count
-    });
-}
-
-function init() {
-    console.log("app's initialized!");
-}
+var notableapp = (function () {
+	return {
+		init : function () {
+			console.log("app's initialized!");
+			
+		},
+		totalCaptures : function () {
+			console.log("fetching the total number of captures.");
+			return 1;
+		},
+		updateBadgeText : function (count) {
+			console.log("updating the badge-text.");
+			chrome.browserAction.setBadgeText({
+				text: count
+			});
+		}
+	}
+})();
