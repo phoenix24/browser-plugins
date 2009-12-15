@@ -34,10 +34,10 @@ function Capture(db) {
     };
     this.save = function() {
         var cap = this;
-//        console.log("object save: " + cap.title +", "+ cap.url +", " + cap.image);
-//        notableapp.dbhandle.transaction(function(tx){
-//            tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
-//        });
+        console.log("object save: " + cap.title +", "+ cap.url +", " + cap.image);
+        notableapp.dbhandle.transaction(function(tx){
+            tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
+        });
     };
     this.remove = function(evt) {
         console.log("remove has been clicked " + evt.parentNode.parentNode);
