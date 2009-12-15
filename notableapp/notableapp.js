@@ -1,14 +1,16 @@
 /**
  * @author chaitanya
  */
+var db = notableapp.init();
 
 function Capture() {
 	var self 	= this;
-    this.db 	= notableapp.init();
+    this.db 	= db;
     
     console.log("db : " + this.db);
     
-    this.view = function () {
+    this.view = function (evt) {
+    	console.log("veiwing the image" + evt);
         // enforcing delay. SQLite is slow.
         window.setTimeout(function(){}, 300);
 
@@ -26,7 +28,7 @@ function Capture() {
         });
     };
     this.log = function() {
-        console.log("object log: "+ self.title +", "+ self.url +", " + this.image);
+        console.log("object log: "+ self.title +", "+ self.url);
     };
     this.save = function() {
         var cap = this;
@@ -35,8 +37,8 @@ function Capture() {
             tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
         });
     };
-    this.remove = function() {
-        console.log("remove has been clicked ");
+    this.remove = function(evt) {
+        console.log("remove has been clicked " + evt.parentNode.parentNode);
     };
     this.display = function () {
 
@@ -54,12 +56,12 @@ function Capture() {
 
                     tmp = scrshot.cloneNode(true);
                     tmp.className = "visible";
-                    tmp.setAttribute("screenshot", "scr" + cap.id);
+                    tmp.setAttribute("screenshot", cap.id);
                     tmp.getElementsByClassName("title")[0].href      = cap.url;
                     tmp.getElementsByClassName("title")[0].innerHTML = cap.title;
-                    tmp.getElementsByClassName("thumbnail")[0].src      = cap.image;
-                    tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function() {cap.view(); }, false);
-                    tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function() {cap.remove(); }, false);
+                    tmp.getElementsByClassName("thumbnail")[0].src   = cap.image;
+                    tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function(e) {self.view(e); }, false);
+                    tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function(e) {self.remove(e); }, false);
                     document.body.appendChild(tmp);
                     console.log("trying to update the badge.");
                     notableapp.updateBadgeText("0");
