@@ -1,13 +1,11 @@
 /**
  * @author chaitanya
  */
-var db = notableapp.init();
 
-function Capture() {
+function Capture(db) {
 	var self 	= this;
-    this.db 	= db;
     
-    console.log("db : " + this.db);
+    console.log("db : " + notableapp.dbhandle);
     
     this.view = function (evt) {
     	console.log("veiwing the image" + evt);
@@ -33,7 +31,7 @@ function Capture() {
     this.save = function() {
         var cap = this;
 //        console.log("object save: " + cap.title +", "+ cap.url +", " + cap.image);
-        self.db.transaction(function(tx){
+        notableapp.dbhandle.transaction(function(tx){
             tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
         });
     };
@@ -43,7 +41,7 @@ function Capture() {
     this.display = function () {
 
         var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
-        self.db.transaction(function(tx){
+        notableapp.dbhandle.transaction(function(tx) {
             tx.executeSql("SELECT id, title, url, image FROM NotableApp", [], function(tx, result){
                 for (var i = 0; i < result.rows.length; ++i) {
                     var row = result.rows.item(i);
@@ -118,7 +116,7 @@ Capture.prototype = {
 };
 
 function captureNew () {
-    var cap = new Capture();
+    var cap = new Capture(notableapp.dbhandle);
     chrome.tabs.getSelected(null, function(tab) {
         cap.url = tab.url;
         cap.title = tab.title;
@@ -136,28 +134,25 @@ function captureNew () {
 }
 
 var notableapp = (function () {
+	try {
+	    db1 = openDatabase("NotableAppDB", "1.0", "NotableApp Captures Table", 20000);
+	    db1.transaction (function(tx) {
+	        tx.executeSql ("SELECT id FROM NotableApp", [], function(tx, result) { 
+	            console.log("records count is " + result.rows.length);
+	        },
+	        function(tx, error) {
+	            tx.executeSql("CREATE TABLE IF NOT EXISTS NotableApp (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, image BLOB)", [], 
+	    			function(r) {
+	    				console.log("table successfully created. ");
+	    			});
+	    		}
+	       );
+	    });
+	} catch (err) {
+	    console.log("failed to open the db.");
+	}
+
 	return {
-		init : function () {
-			var result;
-			try {
-			    db = openDatabase("NotableAppDB", "1.0", "NotableApp Captures Table", 20000);
-			    db.transaction (function(tx) {
-			        tx.executeSql ("SELECT id FROM NotableApp", [], function(tx, result) { 
-			            console.log("records count is " + result.rows.length);
-			        },
-			        function(tx, error) {
-			            tx.executeSql("CREATE TABLE IF NOT EXISTS NotableApp (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, image BLOB)", [], 
-			    			function(r) {
-			    				console.log("table successfully created. ");
-			    			});
-			    		}
-			       );
-			    });
-			} catch (err) {
-			    console.log("failed to open the db.");
-			}
-			return db;
-		},
 		totalCaptures : function () {
 			console.log("fetching the total number of captures.");
 			return 1;
@@ -167,6 +162,7 @@ var notableapp = (function () {
 			chrome.browserAction.setBadgeText({
 				text: count
 			});
-		}
+		},
+		dbhandle : db1
 	}
 })();
