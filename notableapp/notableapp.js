@@ -4,25 +4,29 @@
 
 function Capture(db) {
 	var self 	= this;
-    
-    console.log("db : " + notableapp.dbhandle);
-    
     this.view = function (evt) {
-    	console.log("veiwing the image" + evt);
-        // enforcing delay. SQLite is slow.
-        window.setTimeout(function(){}, 300);
-
-        var viewTabUrl = chrome.extension.getURL('capture.html');
-        chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-            var views = chrome.extension.getViews();
-            for (var i = 0; i < views.length; i++) {
-               var view = views[i];
-               if (view.location.href == viewTabUrl && !view.imageAlreadySet) {
-                  view.setScreenshotUrl(self.image);
-                  view.imageAlreadySet = true;
-                  break;
-               }
-            }
+        var viewTabUrl = chrome.extension.getURL("capture.html");
+    	var imageid = evt.srcElement.parentNode.getAttribute("screenshot");
+        notableapp.dbhandle.transaction(function(tx) {
+        	console.log("imageid : " + imageid);
+            tx.executeSql("SELECT id, title, url, image FROM NotableApp WHERE id = ?", [imageid], function(tx, result) {
+            	result = result.rows.item(0);
+                chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
+                	console.log("image data obtained: " + result["image"]);
+                    var views = chrome.extension.getViews();
+                    for (var i = 0; i < views.length; i++) {
+                       var view = views[i];
+                       if (view.location.href == viewTabUrl && !view.imageAlreadySet) {
+                          view.setScreenshotUrl(result["image"]);
+                          view.imageAlreadySet = true;
+                          break;
+                       }
+                    }
+                });
+            }, function(tx, error){
+                console.log('Failed to retrieve notes from database - ' + error.message);
+                return;
+            });
         });
     };
     this.log = function() {
@@ -31,15 +35,14 @@ function Capture(db) {
     this.save = function() {
         var cap = this;
 //        console.log("object save: " + cap.title +", "+ cap.url +", " + cap.image);
-        notableapp.dbhandle.transaction(function(tx){
-            tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
-        });
+//        notableapp.dbhandle.transaction(function(tx){
+//            tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image]);
+//        });
     };
     this.remove = function(evt) {
         console.log("remove has been clicked " + evt.parentNode.parentNode);
     };
     this.display = function () {
-
         var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
         notableapp.dbhandle.transaction(function(tx) {
             tx.executeSql("SELECT id, title, url, image FROM NotableApp", [], function(tx, result){
@@ -65,7 +68,7 @@ function Capture(db) {
                     notableapp.updateBadgeText("0");
                 }
             }, function(tx, error){
-                alert('Failed to retrieve notes from database - ' + error.message);
+                console.log('Failed to retrieve notes from database - ' + error.message);
                 return;
             });
         });
@@ -153,6 +156,7 @@ var notableapp = (function () {
 	}
 
 	return {
+		dbhandle : db1,
 		totalCaptures : function () {
 			console.log("fetching the total number of captures.");
 			return 1;
@@ -163,6 +167,13 @@ var notableapp = (function () {
 				text: count
 			});
 		},
-		dbhandle : db1
+		loadCaptures : function(id) {
+			var sqlquery = "";
+			if (id = "*") {
+				sqlquery = "SELECT id, title, url, image FROM NotableApp";
+			} else {
+				sqlquery = "SELECT id, title, url, image FROM NotableApp WHERE id = ?";
+			}
+		}
 	}
 })();
