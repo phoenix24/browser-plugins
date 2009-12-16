@@ -8,7 +8,7 @@ function Capture(db) {
         var viewTabUrl = chrome.extension.getURL("capture.html");
     	var imageid = evt.srcElement.parentNode.getAttribute("screenshot");
         notableapp.dbhandle.transaction(function(tx) {
-        	console.log("imageid : " + imageid);
+//        	console.log("imageid : " + imageid);
             tx.executeSql("SELECT id, title, url, image FROM NotableApp WHERE id = ?", [imageid], function(tx, result) {
             	result = result.rows.item(0);
                 chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
