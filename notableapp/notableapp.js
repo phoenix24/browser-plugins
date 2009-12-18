@@ -40,7 +40,17 @@ function Capture(db) {
         });
     };
     this.remove = function(evt) {
-        console.log("remove has been clicked " + evt.parentNode.parentNode);
+    	var imageid = evt.srcElement.parentNode.parentNode.getAttribute("screenshot");
+        console.log("remove has been clicked " + imageid);
+        notableapp.dbhandle.transaction(function(tx) {
+            tx.executeSql("DELETE FROM NotableApp WHERE id = ?", [imageid], function(tx, result){
+                console.log("delete successful! for imageid : " + imageid);
+            	notableapp.updateBadgeText(""+result.rows.length);
+            }, function(tx, error){
+                console.log('Failed to retrieve notes from database - ' + error.message);
+                return;
+            });
+        });
     };
     this.display = function () {
         var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
