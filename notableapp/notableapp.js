@@ -163,7 +163,7 @@ var notableapp = (function () {
 				    var cap = new Capture();
 				    cap.id  = row['id'];
 				    cap.url = row['url'];
-				    cap.title = row['title'];
+				    cap.title = row['title'].substring(0,25);
 				    cap.image = row['image'];
 				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
 
@@ -197,7 +197,7 @@ var notableapp = (function () {
 				    var cap = new Capture();
 				    cap.id  = row['id'];
 				    cap.url = row['url'];
-				    cap.title = row['title'];
+				    cap.title = row['title'].substring(0,25);
 				    cap.image = row['image'];
 				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
 
