@@ -174,7 +174,7 @@ var notableapp = (function () {
 				    cap.url = row['url'];
 				    cap.title = row['title'].substring(0,25);
 				    cap.image = row['image'];
-				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
+//				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
 
 				    tmp = scrshot.cloneNode(true);
 				    tmp.className = "visible";
