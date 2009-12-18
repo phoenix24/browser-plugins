@@ -3,7 +3,7 @@
  */
 
 function Capture(db) {
-	var self 	= this;
+    var self = this;
     this.view = function (evt) {
         var viewTabUrl = chrome.extension.getURL("capture.html");
     	var imageid = evt.srcElement.parentNode.getAttribute("screenshot");
@@ -65,8 +65,8 @@ function Capture(db) {
                     tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function(e) {self.remove(e); }, false);
                     document.body.appendChild(tmp);
                     console.log("trying to update the badge.");
-                    notableapp.updateBadgeText("0");
                 }
+            	notableapp.updateBadgeText(""+result.rows.length);
             }, function(tx, error){
                 console.log('Failed to retrieve notes from database - ' + error.message);
                 return;
