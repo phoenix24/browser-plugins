@@ -106,7 +106,7 @@ function captureNew () {
     window.setTimeout(function(){
        cap.save();
     }, 300);
-    notableapp.display();
+    notableapp.display(null);
 }
 
 var notableapp = (function () {
@@ -155,43 +155,18 @@ var notableapp = (function () {
                      if (action == "remove" && imageid != null) {
                          document.body.removeChild( evt.srcElement.parentNode.parentNode );
                      } else if ( action == "added" ) {
-			var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
-			db1.transaction(function(tx) {
-			    tx.executeSql("SELECT * from NotableApp where id = ( select max(id) from NotableApp )", [], function(tx, result){
-				for (var i = 0; i < result.rows.length; ++i) {
-				    var row = result.rows.item(i);
-				    var cap = new Capture();
-				    cap.id  = row['id'];
-				    cap.url = row['url'];
-				    cap.title = row['title'].substring(0,25);
-				    cap.image = row['image'];
-				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
-
-				    tmp = scrshot.cloneNode(true);
-				    tmp.className = "visible";
-				    tmp.setAttribute("screenshot", cap.id);
-				    tmp.getElementsByClassName("title")[0].href      = cap.url;
-				    tmp.getElementsByClassName("title")[0].innerHTML = cap.title;
-				    tmp.getElementsByClassName("thumbnail")[0].src   = cap.image;
-				    tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function(e) {cap.view(e); }, false);
-				    tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function(e) {cap.remove(e); }, false);
-				    document.body.appendChild(tmp);
-				    console.log("trying to update the badge.");
-				}
-			    	notableapp.updateBadgeText();
-			    }, function(tx, error){
-				console.log('Failed to retrieve notes from database - ' + error.message);
-				return;
-			    });
-			});
-
+		             var sqlquery = "SELECT * from NotableApp where id = ( select max(id) from NotableApp )";
+		             notableapp.display(sqlquery);
                      }
-                     notableapp.updateBadgeText();
                 },
-                display : function () {
-			var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
+                display : function (sqlquery) {
+
+                        if (sqlquery === null ) {
+                            sqlquery = "SELECT id, title, url, image FROM NotableApp";
+			}
+                        var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
 			db1.transaction(function(tx) {
-			    tx.executeSql("SELECT id, title, url, image FROM NotableApp", [], function(tx, result){
+                           tx.executeSql(sqlquery, [], function(tx, result){
 				for (var i = 0; i < result.rows.length; ++i) {
 				    var row = result.rows.item(i);
 				    var cap = new Capture();
