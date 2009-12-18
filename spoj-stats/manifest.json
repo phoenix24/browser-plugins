@@ -4,10 +4,11 @@
   "version": "1.0",
   "background_page": "background.html",
   "permissions": [
-    "tabs", "http://*.spoj.pl/", "https://*.spoj.pl/*"
+    "tabs", "http://www.spoj.pl/users/*"
    ],
   "browser_action": {
-      "default_title": "SPOJ Plugin"
+      "default_title": "SPOJ Plugin",
+      "default_icon" : "spoj.png"
   },
   "icons": {
     "128": "spoj.png"
