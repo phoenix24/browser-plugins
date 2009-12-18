@@ -44,8 +44,9 @@ function Capture(db) {
         console.log("remove has been clicked " + imageid);
         notableapp.dbhandle.transaction(function(tx) {
             tx.executeSql("DELETE FROM NotableApp WHERE id = ?", [imageid], function(tx, result){
+            	notableapp.updateBadgeText();
+                document.body.removeChild(evt.srcElement.parentNode.parentNode);
                 console.log("delete successful! for imageid : " + imageid);
-            	notableapp.updateBadgeText(""+result.rows.length);
             }, function(tx, error){
                 console.log('Failed to retrieve notes from database - ' + error.message);
                 return;
@@ -76,12 +77,15 @@ function Capture(db) {
                     document.body.appendChild(tmp);
                     console.log("trying to update the badge.");
                 }
-            	notableapp.updateBadgeText(""+result.rows.length);
+            	notableapp.updateBadgeText();
             }, function(tx, error){
                 console.log('Failed to retrieve notes from database - ' + error.message);
                 return;
             });
         });
+    };
+    this.updateDisplay = function () {
+        
     };
     return this;
 }
@@ -171,10 +175,17 @@ var notableapp = (function () {
 			console.log("fetching the total number of captures.");
 			return 1;
 		},
-		updateBadgeText : function (count) {
+		updateBadgeText : function () {
 			console.log("updating the badge-text.");
-			chrome.browserAction.setBadgeText({
-				text: count
+			db1.transaction(function(tx) {
+			    tx.executeSql("SELECT id FROM NotableApp", [], function(tx, result){
+				chrome.browserAction.setBadgeText({
+					text: ""+result.rows.length
+				});
+			    }, function(tx, error){
+				console.log('Failed to retrieve notes from database - ' + error.message);
+				return;
+			    });
 			});
 		},
 		loadCaptures : function(id) {
