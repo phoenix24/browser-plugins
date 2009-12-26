@@ -103,7 +103,7 @@ function captureNew () {
     chrome.tabs.captureVisibleTab(null, function(img) {
         cap.image = img;
     });
-    window.setTimeout(function(){
+    window.setTimeout(function() {
        cap.save();
     }, 300);
     notableapp.display(null);
@@ -158,6 +158,7 @@ var notableapp = (function () {
 		             var sqlquery = "SELECT * from NotableApp where id = ( select max(id) from NotableApp )";
 		             notableapp.display(sqlquery);
                      }
+                     notableapp.updateBadgeText();
                 },
                 display : function (sqlquery) {
 
@@ -174,7 +175,6 @@ var notableapp = (function () {
 				    cap.url = row['url'];
 				    cap.title = row['title'].substring(0,25);
 				    cap.image = row['image'];
-//				    console.log("object displaying: "+ cap.title +", "+ cap.url +", " + cap.image);
 
 				    tmp = scrshot.cloneNode(true);
 				    tmp.className = "visible";
