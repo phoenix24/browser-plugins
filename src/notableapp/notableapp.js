@@ -11,7 +11,6 @@ function Capture(db) {
             tx.executeSql("SELECT id, title, url, image FROM NotableApp WHERE id = ?", [imageid], function(tx, result) {
             	result = result.rows.item(0);
                 chrome.tabs.create({url: viewTabUrl, selected: true}, function(tab) {
-                	console.log("image data obtained: " + result["image"]);
                     var views = chrome.extension.getViews();
                     for (var i = 0; i < views.length; i++) {
                        var view = views[i];
@@ -29,11 +28,11 @@ function Capture(db) {
         });
     };
     this.log = function() {
-        console.log("object log: "+ self.title +", "+ self.url);
+//        console.log("object log: "+ self.title +", "+ self.url);
     };
     this.save = function() {
         var cap = this;
-        console.log("object saved: "+ cap.title +", "+ cap.url +", "+ cap.image);
+//        console.log("object saved: "+ cap.title +", "+ cap.url +", "+ cap.image);
         notableapp.dbhandle.transaction(function(tx){
             tx.executeSql("INSERT INTO NotableApp (title, url, image) VALUES (?, ?, ?)", [cap.title, cap.url, cap.image], function(tx, result) {
 		notableapp.updateDisplay("added", null, null);
@@ -42,13 +41,16 @@ function Capture(db) {
     };
     this.remove = function(evt) {
     	var imageid = evt.srcElement.parentNode.parentNode.getAttribute("screenshot");
-        console.log("remove has been clicked " + imageid);
+//        console.log("remove has been clicked " + imageid);
         notableapp.dbhandle.transaction(function(tx) {
             tx.executeSql("DELETE FROM NotableApp WHERE id = ?", [imageid], function(tx, result) { 
-		notableapp.updateDisplay("remove", evt, imageid);
-	    });
+            	notableapp.updateDisplay("remove", evt, imageid);
+            });
         });
     };
+    this.add = function(evt) {
+    	console.log("uploading the capture image .. ");
+    }
     return this;
 }
 
@@ -130,70 +132,69 @@ var notableapp = (function () {
 
 	return {
 		dbhandle : db1,
-                init : function () {
-                     notableapp.updateBadgeText();
-                },
+        init : function () {
+             notableapp.updateBadgeText();
+        },
 		totalCaptures : function () {
 			console.log("fetching the total number of captures.");
 			return 1;
 		},
 		updateBadgeText : function () {
-			console.log("updating the badge-text.");
+//			console.log("updating the badge-text.");
 			db1.transaction(function(tx) {
 			    tx.executeSql("SELECT id FROM NotableApp", [], function(tx, result){
 				chrome.browserAction.setBadgeText({
 					text: ""+result.rows.length
 				});
 			    }, function(tx, error){
-				console.log('Failed to retrieve notes from database - ' + error.message);
-				return;
+//					console.log('Failed to retrieve notes from database - ' + error.message);
+					return;
 			    });
 			});
 		},
-                updateDisplay : function (action, evt, imageid) {
-                     console.log("action, id : " + action + ", " + imageid );
-                     if (action == "remove" && imageid != null) {
-                         document.body.removeChild( evt.srcElement.parentNode.parentNode );
-                     } else if ( action == "added" ) {
-		             var sqlquery = "SELECT * from NotableApp where id = ( select max(id) from NotableApp )";
-		             notableapp.display(sqlquery);
-                     }
-                     notableapp.updateBadgeText();
-                },
-                display : function (sqlquery) {
-
-                        if (sqlquery === null ) {
-                            sqlquery = "SELECT id, title, url, image FROM NotableApp";
+        updateDisplay : function (action, evt, imageid) {
+//             console.log("action, id : " + action + ", " + imageid );
+             if (action == "remove" && imageid != null) {
+                 document.body.removeChild( evt.srcElement.parentNode.parentNode );
+             } else if ( action == "added" ) {
+             var sqlquery = "SELECT * from NotableApp where id = ( select max(id) from NotableApp )";
+             notableapp.display(sqlquery);
+             }
+             notableapp.updateBadgeText();
+        },
+        display : function (sqlquery) {
+            if (sqlquery === null ) {
+                sqlquery = "SELECT id, title, url, image FROM NotableApp";
 			}
-                        var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
+            var tmp, scrshot = document.getElementsByClassName("screenshot")[0];
 			db1.transaction(function(tx) {
-                           tx.executeSql(sqlquery, [], function(tx, result){
-				for (var i = 0; i < result.rows.length; ++i) {
-				    var row = result.rows.item(i);
-				    var cap = new Capture();
-				    cap.id  = row['id'];
-				    cap.url = row['url'];
-				    cap.title = row['title'].substring(0,25);
-				    cap.image = row['image'];
-
-				    tmp = scrshot.cloneNode(true);
-				    tmp.className = "visible";
-				    tmp.setAttribute("screenshot", cap.id);
-				    tmp.getElementsByClassName("title")[0].href      = cap.url;
-				    tmp.getElementsByClassName("title")[0].innerHTML = cap.title;
-				    tmp.getElementsByClassName("thumbnail")[0].src   = cap.image;
-				    tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function(e) {cap.view(e); }, false);
-				    tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function(e) {cap.remove(e); }, false);
-				    document.body.appendChild(tmp);
-				    console.log("trying to update the badge.");
-				}
-			    	notableapp.updateBadgeText();
+               tx.executeSql(sqlquery, [], function(tx, result) {
+					for (var i = 0; i < result.rows.length; ++i) {
+					    var row = result.rows.item(i);
+					    var cap = new Capture();
+					    cap.id  = row['id'];
+					    cap.url = row['url'];
+					    cap.title = row['title'].substring(0,25);
+					    cap.image = row['image'];
+	
+					    tmp = scrshot.cloneNode(true);
+					    tmp.className = "visible";
+					    tmp.setAttribute("screenshot", cap.id);
+					    tmp.getElementsByClassName("title")[0].href      = cap.url;
+					    tmp.getElementsByClassName("title")[0].innerHTML = cap.title;
+					    tmp.getElementsByClassName("thumbnail")[0].src   = cap.image;
+					    tmp.getElementsByClassName("addbtn")[0].addEventListener("click", function(e) {cap.add(e); }, false);
+					    tmp.getElementsByClassName("thumbnail")[0].addEventListener("click", function(e) {cap.view(e); }, false);
+					    tmp.getElementsByClassName("removebtn")[0].addEventListener("click", function(e) {cap.remove(e); }, false);
+					    document.body.appendChild(tmp);
+					}
+					notableapp.updateBadgeText();
 			    }, function(tx, error){
-				console.log('Failed to retrieve notes from database - ' + error.message);
-				return;
+					console.log('Failed to retrieve notes from database - ' + error.message);
+					return;
 			    });
 			});
-                },
+        },
 		loadCaptures : function(id) {
 			var sqlquery = "";
 			if (id = "*") {
