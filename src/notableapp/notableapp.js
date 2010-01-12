@@ -50,7 +50,47 @@ function Capture(db) {
     };
     this.add = function(evt) {
     	console.log("uploading the capture image .. ");
-    }
+    	var imageid = evt.srcElement.parentNode.parentNode.getAttribute("screenshot");
+    	var boundaryString = '----WebKitFormBoundaryIyMogSMYIcqEAloZ';
+    	var boundary = '--' + boundaryString;
+
+        notableapp.dbhandle.transaction(function(tx) {
+            tx.executeSql("SELECT id, title, url, image FROM NotableApp WHERE id = ?", [imageid], function(tx, result) {
+            	result = result.rows.item(0);
+            	console.log("sending image : " + imageid + ", " + result["image"]);
+            	
+            	var reqBody = '\r\n'
+            		+ boundary
+            		+ '\r\n'
+            		+ 'Content-Disposition: form-data; name="capture"; filename="capture.png"' + '\r\n'
+            		+ 'Content-Type: image/jpg' + '\r\n\r\n'
+            		+ result["image"]
+            		+ '\r\n\r\n'
+            		+ boundary 
+            		+ '\r\n';
+            		
+            	console.log('Content-Length : '+ reqBody.length);
+        		var req = new XMLHttpRequest();
+            	req.open('POST', 'https://www.notableapp.com/posts/upload/', true);
+            	req.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundaryString);
+//            	req.setRequestHeader('Content-Length', reqBody.length);
+            	req.onreadystatechange = function () {
+            		if (req.readyState == 4) {
+            			console.log("responseText: " + req.responseText + "...");
+            		}
+            	};
+            	req.onerror = function (error) {
+            		console.log("error occured while posting the image : " + error);
+            	};
+            	req.send(reqBody);
+            }, function(tx, error) {
+                console.log('Failed to post the capture to notableapp - ' + error.message);
+                return;
+            });
+        });
+        
+        console.log('capture sent to server');
+    };
     return this;
 }
 
