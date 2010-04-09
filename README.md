@@ -11,10 +11,11 @@ I am still working on the documentation; please bear.
 bookmark extension
 ------------------
 this is basically a bookmark all open tabs; more features to be added.
->todo1, basic session management.
->todo2, if possible sync with google docs.
->todo3, if possible sync with mozilla weave.
->todo4, maybe add some cool vizualization.
+>todo's are:
+1. basic session management.
+2. if possible sync with google docs.
+3. if possible sync with mozilla weave.
+4. maybe add some cool vizualization.
 
 
 kmail
