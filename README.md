@@ -11,7 +11,7 @@ I am still working on the documentation; please bear.
 bookmark extension
 ------------------
 this is basically a bookmark all open tabs; more features to be added.
->todo's are:
+##### todo's are: ######
 1. basic session management.
 2. if possible sync with google docs.
 3. if possible sync with mozilla weave.
