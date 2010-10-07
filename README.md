@@ -50,3 +50,8 @@ samples
 sample extensions i imported from google-chromium extension.
 #### todo's are: #####
 1. remove these.
+
+cleanup
+-------
+change the icons.
+give a proper structure;
