@@ -5,7 +5,8 @@ if (regex.test(document.body.innerText)) {
     var node = document.body;
 
     var el = node.getElementsByClassName("logo_text")[0];
-    el.parentNode.removeChild(el);
+    //el.parentNode.removeChild(el);
+    el.src = "http://www.tst.it/public/images/dial-a-survey.png";
 
     var el = node.getElementsByClassName("copyright")[0];
     el.parentNode.removeChild(el);
